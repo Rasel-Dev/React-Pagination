@@ -1,25 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useState } from 'react';
+import Pagination from './Components/Pagination';
+import Post from './Components/Posts';
+import Show from './Components/Show/index';
+import Api from './Services/Api';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+    const [posts, setPosts] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+
+    useEffect(() => {
+        setPosts(Api.posts());
+    }, []);
+
+    const indexOfLastPost = currentPage * perPage;
+    const indexOfFirstPost = indexOfLastPost - perPage;
+    const currentPostss = posts.slice(indexOfFirstPost, indexOfLastPost);
+
+    const pagination = (page) => {
+        setCurrentPage(page);
+    };
+
+    const showPerPage = (e) => {
+        setPerPage(e.target.value);
+        setCurrentPage(1);
+    };
+
+    return (
+        <div className="bg-gray-200">
+            <div className="w-1/2 mx-auto">
+                <h1 className="text-3xl font-bold text-center py-10">The Blogs</h1>
+                <Show perPage={perPage} handler={showPerPage} />
+                {currentPostss.map((post) => (
+                    <Post key={post.id} post={post} />
+                ))}
+                <Pagination
+                    total={posts.length}
+                    current={currentPage}
+                    perPage={perPage}
+                    handler={pagination}
+                />
+                <div className="p-10" />
+            </div>
+        </div>
+    );
+};
 
 export default App;
